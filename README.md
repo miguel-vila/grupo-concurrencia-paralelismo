@@ -13,11 +13,13 @@
 
 ## Posibles Temas
 
-* API de `ExecutorService`s de la JVM y en qué se diferencian cada uno. _Pool_ de _threads_:
+* API de `ExecutorService`s de la JVM.:
 	* [ExecutorService](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html)
 	* [ThreadPoolExecutor](http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ThreadPoolExecutor.html)
 	* [Choosing an ExecutorService](http://blog.jessitron.com/2014/01/choosing-executorservice.html)
 	* [Fork Join Pool](http://blog.jessitron.com/2014/02/forkjoinpool-other-executorservice.html)
+
+* _Pools_ de _threads_:
 	* [Thread pools! How do I use them?](http://jvns.ca/blog/2016/03/27/thread-pools-how-do-i-use-them/)
 	* [I conquered thread pools! For today, at least.](http://jvns.ca/blog/2016/03/29/thread-pools-part-ii-i-love-blocking/)
 
