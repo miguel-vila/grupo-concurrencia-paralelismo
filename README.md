@@ -9,7 +9,7 @@
 > * Un video de una conferencia o una presentación
 > * Un pedazo de código fuente
 
-> que no tome más de una hora consumir y que trate sobre temas de concurrencia o paralelismo. Reunirnos a discutir, cada semana, qué entendemos y qué no durante máximo una hora. Los temas deben ser **autocontenidos** y cualquier persona puede unirse en cualquier momento o faltar a cualquiera de las sesiones.
+> que no tome más de una hora consumir y que trate sobre temas de concurrencia o paralelismo. Reunirnos a discutir, cada semana, qué entendemos y qué no durante máximo una hora. Los temas deben ser autocontenidos y cualquier persona puede unirse en cualquier momento o faltar a cualquiera de las sesiones.
 
 ## Posibles Temas
 
@@ -22,6 +22,8 @@
 	* [I conquered thread pools! For today, at least.](http://jvns.ca/blog/2016/03/29/thread-pools-part-ii-i-love-blocking/)
 
 * [Opciones de concurrencia en la JVM](https://www.youtube.com/watch?v=yhguOt863nw)
+
+* Algunos videos de [este curso](https://www.udacity.com/course/introduction-to-operating-systems--ud923)
 
 * [Parallelism and concurrency need different tools](http://yosefk.com/blog/parallelism-and-concurrency-need-different-tools.html)
 
