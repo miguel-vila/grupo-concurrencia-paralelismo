@@ -1,7 +1,5 @@
 # Grupo de lectura de concurrencia y paralelismo
 
-## "Regla" Principal
-
 >Proponer alguno de :
 
 > * Un post de un blog
