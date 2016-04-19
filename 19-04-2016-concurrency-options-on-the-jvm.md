@@ -3,6 +3,9 @@
 * Threads: One extra flow of execution
   * Useful when waiting for IO or a network request
 
+* keep alive time
+* daemon threads
+
 
 * [`ExecutorService`](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html) :
   * interface around a thread pool of sorts
@@ -11,6 +14,14 @@
   * `boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException`: Blocks until all tasks have completed execution after a shutdown request, or the timeout occurs, or the current thread is interrupted, whichever happens first. Returns true if this executor terminated and false if the timeout elapsed before termination.
 
 * `Executors` class: has static methods to construct Executors
+
+# Actors
+
+# Agents
+
+# Channels
+
+# Parallel streams
 
 # Futures
 
