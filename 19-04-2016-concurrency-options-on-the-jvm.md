@@ -120,3 +120,7 @@ Whose threads am I using?
 * Calling `shutdown` on a `ForkJoinPool` won't do anything because it's fully intended to accept tasks that submit other tasks back into the same pool (Computations that start other computations recursively). All you can do is wait until the thread pool is doing nothing and exit before anyone externally submits a task into the pool. (`fjp.awaitQuiescence(5,MINUTES)`)
 
 # Dudas por resolver
+
+* daemon threads y keep alive
+* que pasa con el shutdown de un sistema de actores? que pasa con los threads y los mensajes pendientes?
+* blocking de scala
