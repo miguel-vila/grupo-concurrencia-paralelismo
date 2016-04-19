@@ -9,6 +9,13 @@
 
 > que no tome más de una hora consumir y que trate sobre temas de concurrencia o paralelismo. Reunirnos a discutir, cada semana, qué entendemos y qué no durante máximo una hora. Los temas deben ser autocontenidos y cualquier persona puede unirse en cualquier momento o faltar a cualquiera de las sesiones.
 
+## Sesiones
+
+
+| Fecha     | Notas                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------------- |
+|19/04/2016 | [Jessica Kerr's "Concurrency options on the JVM"](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/19-04-2016-concurrency-options-on-the-jvm.md) |
+
 ## Posibles Temas
 
 * API de `ExecutorService`s de la JVM.:
