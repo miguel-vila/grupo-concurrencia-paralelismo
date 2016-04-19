@@ -27,7 +27,7 @@ In Scala:
 
 # [Executors](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html)
 
-## [SingleThreadExecutor](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newSingleThreadExecutor()
+## [SingleThreadExecutor](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newSingleThreadExecutor())
 
 * unlimited queue
 * explicit shutdown
@@ -39,7 +39,7 @@ In Scala:
 * For a single owner of mutable state. For example the UI
 * Do not block when using it
 
-## [CachedThreadPool](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newCachedThreadPool()
+## [CachedThreadPool](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newCachedThreadPool())
 
 > a thread pool that creates new threads as needed, but will reuse previously constructed threads when they are available. These pools will typically improve the performance of programs that execute many short-lived asynchronous tasks. Calls to execute will reuse previously constructed threads if available. If no existing thread is available, a new thread will be created and added to the pool. Threads that have not been used for sixty seconds are terminated and removed from the cache. Thus, a pool that remains idle for long enough will not consume any resources.
 
@@ -47,7 +47,7 @@ In Scala:
 * no queuing
 * blocking is ok
 
-## [FixedThreadPool](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newFixedThreadPool(int)
+## [FixedThreadPool](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executors.html#newFixedThreadPool(int))
 
 > Creates a thread pool that reuses a fixed number of threads operating off a shared unbounded queue. At any point, at most nThreads threads will be active processing tasks. If additional tasks are submitted when all threads are active, they will wait in the queue until a thread is available. If any thread terminates due to a failure during execution prior to shutdown, a new one will take its place if needed to execute subsequent tasks. The threads in the pool will exist until it is explicitly shutdown.
 
@@ -75,11 +75,11 @@ In Scala:
   * Discard task
   * Discard old task: e.g. the oldest click in the UI
 
-  ## [ForkJoinPool](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.html)
+## [ForkJoinPool](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ForkJoinPool.html)
 
-  * Maximize processor power
-  * unbounded queues
-  * daemon threads
+* Maximize processor power
+* unbounded queues
+* daemon threads
 
 In Scala:
 
