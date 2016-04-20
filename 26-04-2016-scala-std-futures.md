@@ -38,4 +38,6 @@ Por otra parte está `Promise` que tiene métodos para completar la promesa con 
 | ---------------- | ------------------------------------ |
 | [`tryComplete`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L51-L57) | [`complete`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L42-L49), [`tryCompleteWith`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L65-L74), [`success`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L76-L82), [`trySuccess`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L84-L90), [`failure`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L92-L100), [`tryFailure`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L102-L108) |
 
-Además tiene un miembro [`future`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L29-L31) abstracto y otro [`isCompleted`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L33-L40)
+Además `Promise` tiene un miembro [`future`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L29-L31) abstracto y otro [`isCompleted`](https://github.com/scala/scala/blob/2.12.x/src/library/scala/concurrent/Promise.scala#L33-L40).
+
+Una vez entendidos a grandes rasgos estos `trait`s podemos ver como son implementados los métodos abstractos. Lo primero
