@@ -6,22 +6,36 @@
 * keep alive time
 * daemon threads
 
-
 * [`ExecutorService`](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html) :
   * interface around a thread pool of sorts
   * Extends [`Executor`](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Executor.html) class with shutdown facilities. `Executor` is just an interface with the method `void	execute(Runnable command)`
   * `void shutdown()`: Initiates an orderly shutdown in which previously submitted tasks are executed, but no new tasks will be accepted. Invocation has no additional effect if already shut down.
   * `boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException`: Blocks until all tasks have completed execution after a shutdown request, or the timeout occurs, or the current thread is interrupted, whichever happens first. Returns true if this executor terminated and false if the timeout elapsed before termination.
 
+
 * `Executors` class: has static methods to construct Executors
 
 # Actors
 
-# Agents
+The default is a ForkJoinPool but it can be configured.
 
-# Channels
+# Agents (clojure)
+
+Simplifies common cases in actors. Manages state, a single thread and a queue of messages.
+
+Uses two thread pools:
+
+* In `send` (computation only, fast and non-blocking): FixedThreadPool(n+2) , requires explicit shutdown
+
+* In `send-off` (allowed to block, with a 1 minute timeout): CachedThreadPool
+
+# Channels (clojure's core.async)
+
+FixedThreadPool(2*n+42) Why???
 
 # Parallel streams
+
+ForkJoinPool. "Uses daemon threads, which makes sense".
 
 # Futures
 
