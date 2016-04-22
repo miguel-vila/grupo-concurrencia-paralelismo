@@ -30,9 +30,11 @@ El código fuente es un poco difícil de recorrer y entender.  Creo que uno enti
 * `Future.sequence`
 * `Future.traverse`
 
-Primero creo que vale la pena entender el API público. `Future` representa un valor futuro (que puede ser exitoso o fallido con una excepción) y tiene combinadores funcionales como `map` o `flatMap` que permiten crear otros futuros. `Promise` es un objeto que puede ser completado con un valor o fallido con una excepción. La diferencia entre ambos es que `Future` es como el lado de lectura y `Promise` es el lado de escritura, dónde se puede asignar el valor. `Future` es el sitio dónde agregamos funciones que se deberían ejecutar cuando el valor de la promesa haya sido llenado. Además un objeto de tipo `Promise[T]` tiene una referencia a un valor de tipo `Future[T]`, es decir a su lado de escritura. Esto resulta importante a la hora de ver como están implementados ciertos métodos. Creo que si al leer el código uno tiene en cuenta esta relación se puede entender buena parte.
+Primero creo que vale la pena entender el API público. `Future` representa un valor futuro (que puede ser exitoso o fallido con una excepción) y tiene combinadores funcionales como `map` o `flatMap` que permiten crear otros futuros. `Promise` es un objeto que puede ser completado con un valor o fallido con una excepción. La diferencia entre ambos es que `Future` es como el lado de lectura y `Promise` es el lado de escritura, dónde se puede asignar el valor. `Future` es el sitio dónde agregamos funciones que se deberían ejecutar cuando el valor de la promesa haya sido llenado. Además un objeto de tipo `Promise[T]` tiene una referencia a un valor de tipo `Future[T]`, es decir a su lado de escritura. Esto resulta importante a la hora de ver como están implementados ciertos métodos. Creo que si al leer el código uno tiene en cuenta esta relación se puede entender buena parte. Además los comentarios al inicio de cada definición resultan útiles para entender.
 
-## [`Future`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L92) (API público)
+## Un camino aproximado para entenderlo
+
+### [`Future`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L92) (API público)
 
 `Future` es un `trait` que tiene algunos métodos abstractos y otros implementados en función de los abstractos, entre ellos los que nos interesan son estos:
 
@@ -46,7 +48,7 @@ Es decir, si entendemos cómo están implementados `transform` y `transformWith`
 
 Además `Future` tiene un método abstracto [`value`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L163-L174) (¿Por qué en los comentarios dice que es no determinístico?) y otro [`isCompleted`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L154-L161).
 
-## [`Promise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Promise.scala#L28) (API público)
+### [`Promise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Promise.scala#L28) (API público)
 
 Por otra parte está `Promise` que tiene métodos para completar la promesa con un valor exitoso (un `Success(t)`) o con una excepción (un `Failure(throwable)`):
 
@@ -60,7 +62,7 @@ Una vez entendidos a grandes rasgos estos `trait`s podemos ver como son implemen
 
 En [este](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala) archivo se encuentra la mayoría de la implementación.
 
-## [`Promise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L21) (implementación parcial)
+### [`Promise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L21) (implementación parcial)
 
 El archivo de implementación define un tipo, también llamado `Promise` que extiende `Promise` y `Future` del API público, lo que lo hace muy confuso. Implementa algunos de los métodos y deja otros sin implementar. En particular implementa `transform` y `transformWith`. En este punto creo que uno puede entender parcialmente como están implementados: ambos dependen del método `onComplete` que tiene esta firma:
 
@@ -82,7 +84,7 @@ onComplete { result: T =>
 p.future // retornar lado de lectura
 ```
 
-## [`DefaultPromise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L183) (mayoría de la implementación)
+### [`DefaultPromise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L183) (mayoría de la implementación)
 
 `DefaultPromise` hereda de `AtomicReference` e implementa `Promise` (el que se encuentra en el mismo archivo, es decir la implementación parcial). [`AtomicReference`](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReference.html) es una clase del API de concurrencia de Java y sirve para mantener una referencia mutable que se puede actualizar atómicamente, es decir se puede compartir entre distintos _threads_ sin riesgo de "corromper" el valor. Los métodos que deberían entender son `get` y `compareAndSet`. Los [comentarios](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L105-L127) de `DefaultPromise` creo que explican gran parte de la cosa:
 
@@ -125,11 +127,11 @@ Los métodos más importantes de `DefaultPromise` que deben entender son:
 
 Para `dispatchOrAddCallback` se usa un objeto del siguiente tipo:
 
-## [`CallbackRunnable`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L54)
+### [`CallbackRunnable`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L54)
 
 Es un `Runnable` y por lo tanto implementa un método `run` y puede ser enviado a un `ExecutionContext`. Además tiene una referencia a un `ExecutionContext`. Lo importante es entender que simplemente se trata de una función que hace algo con un valor de tipo `Try[T]` y que puede ejecutarse en un `ExecutionContext`.
 
-## [`Kept`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L358)
+### [`Kept`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L358)
 
 Este `trait` sirve para describir una una promesa que ha sido inmediatamente completada con algún valor y sirve para implementar `[Promise.Successful](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L375)` y `[Promise.Failed](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L383)` que a su vez son usados para implementar `Future.successful` y `Future.failed` respectivamente.
 
