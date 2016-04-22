@@ -133,7 +133,7 @@ Es un `Runnable` y por lo tanto implementa un método `run` y puede ser enviado 
 
 ### [`Kept`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L358)
 
-Este `trait` sirve para describir una una promesa que ha sido inmediatamente completada con algún valor y sirve para implementar `[Promise.Successful](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L375)` y `[Promise.Failed](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L383)` que a su vez son usados para implementar `Future.successful` y `Future.failed` respectivamente.
+Este `trait` sirve para describir una una promesa que ha sido inmediatamente completada con algún valor y sirve para implementar [`Promise.Successful`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L375) y [`Promise.Failed`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L383) que a su vez son usados para implementar `Future.successful` y `Future.failed` respectivamente.
 
 ---
 
