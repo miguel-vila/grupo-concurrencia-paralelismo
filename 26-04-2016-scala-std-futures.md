@@ -70,15 +70,15 @@ El archivo de implementación define un tipo, también llamado `Promise` que ext
 def onComplete[U](func: Try[T] => U)(implicit executor: ExecutionContext): Unit
 ```
 
-Sin ponernos a ver como está implementado todavía lo que `onComplete` hace es agregar una función al futuro para que se ejecute una vez el futuro/promesa se resuelva. Además ambos métodos definen un valor de tipo `DefaultPromise`, que es el que implementa la mayoría de cosas. Ambos métodos lo que hacen es algo como lo siguiente: definir una nueva promesa (el valor de escritura), después al futuro/promesa actual agregarle un callback para que cuando se complete utilizar ese valor de cierta manera para escribir la promesa con el valor, y finalmente devolver el lado de escritura de la promesa, es decir el futuro. La promesa se escribe con el método `tryComplete`, o con alguno de sus derivados:
+Sin ponernos a ver como está implementado todavía lo que `onComplete` hace es agregar una función al futuro para que se ejecute una vez el futuro/promesa se resuelva. Además ambos métodos (`transform` y `transformWith`) definen un valor de tipo `DefaultPromise`, que es el que implementa la mayoría de cosas. Ambos métodos lo que hacen es algo como lo siguiente: definir una nueva promesa (el valor de escritura), después al futuro/promesa actual agregarle un callback para que cuando se complete utilizar ese valor de cierta manera para escribir la promesa con el valor, y finalmente devolver el lado de escritura de la promesa, es decir el futuro. La promesa se escribe con el método `tryComplete`, o con alguno de sus derivados. Ambos métodos siguen un esquema como el siguiente:
 
 ```scala
 val p = new DefaultPromise[S]()  // Definir lado de escritura
 onComplete { result: T =>
   /*
    * a partir de algo de tipo T transformarlo en algo de tipo S
-   * y escribir la promesa usando alguno de complete, failure
-   * o completeWith
+   * y escribir ese valor en la promesa usando alguno de complete
+   * , failure o completeWith
    */  
 }
 p.future // retornar lado de lectura
