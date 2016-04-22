@@ -15,6 +15,7 @@
 | Fecha     | Notas                                                                                          |
 | --------- | ---------------------------------------------------------------------------------------------- |
 |19/04/2016 | [Jessica Kerr's "Concurrency options on the JVM"](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/19-04-2016-concurrency-options-on-the-jvm.md) |
+|26/04/2016 | [¿Cómo funcionan los futuros de la librería estándar de Scala?](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/26-04-2016-scala-std-futures.md#cómo-funcionan-los-futuros-de-la-librería-estándar-de-scala)
 
 ## Posibles Temas
 
