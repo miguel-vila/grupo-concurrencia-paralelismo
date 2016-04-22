@@ -2,7 +2,7 @@
 
 ## Algunos "prerrequisitos"
 
-La idea era que cada material fuera autocontenido, pero para entender cómo están implementados los futuros creo que mínimo toca saber para qué sirven y qué código nos permiten escribir. Creo que [este](http://danielwestheide.com/blog/2013/01/09/the-neophytes-guide-to-scala-part-8-welcome-to-the-future.html) es un buen artículo.
+La idea era que cada material fuera autocontenido, pero para entender cómo están implementados los futuros mínimo toca saber para qué sirven y qué código nos permiten escribir. Creo que [este](http://danielwestheide.com/blog/2013/01/09/the-neophytes-guide-to-scala-part-8-welcome-to-the-future.html) es un buen artículo.
 
 Además para entender la implementación hay que saber algo sobre el tipo `Try`. [Esta](http://danielwestheide.com/blog/2012/12/26/the-neophytes-guide-to-scala-part-6-error-handling-with-try.html) es una buena fuente.
 
@@ -15,6 +15,8 @@ Código fuente (la versión más reciente a 19/04/16):
   * [`Promise` (`trait` del API público)](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Promise.scala)
 * Paquete `scala.concurrent.impl` (Implementación):
   * [`Promise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala)
+
+## Que hay que entender
 
 El código fuente es un poco difícil de recorrer y entender.  Creo que uno entiende casi todo si se entienden los siguientes métodos:
 
@@ -127,4 +129,10 @@ Para `dispatchOrAddCallback` se usa un objeto del siguiente tipo:
 
 Es un `Runnable` y por lo tanto implementa un método `run` y puede ser enviado a un `ExecutionContext`. Además tiene una referencia a un `ExecutionContext`. Lo importante es entender que simplemente se trata de una función que hace algo con un valor de tipo `Try[T]` y que puede ejecutarse en un `ExecutionContext`.
 
+## [`Kept`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L358)
+
+Este `trait` sirve para describir una una promesa que ha sido inmediatamente completada con algún valor y sirve para implementar `[Promise.Successful](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L375)` y `[Promise.Failed](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L383)` que a su vez son usados para implementar `Future.successful` y `Future.failed` respectivamente.
+
 ---
+
+Esto creo que es la mayoría de lo que hay entender. Faltan varias cosas pero durante la sesión podemos adentrarnos en los detalles de cada método y en las preguntas específicas de concurrencia.
