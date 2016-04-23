@@ -18,7 +18,7 @@ Código fuente (la versión más reciente a 19/04/16):
 
 ## Que hay que entender
 
-El código fuente es un poco difícil de recorrer y entender.  Creo que uno entiende casi todo si se entienden los siguientes métodos:
+El código fuente es un poco difícil de recorrer y entender.  Creo que uno entiende casi todo si se comprenden los siguientes métodos:
 
 * `map`
 * `flatMap`
@@ -30,7 +30,7 @@ El código fuente es un poco difícil de recorrer y entender.  Creo que uno enti
 * `Future.sequence`
 * `Future.traverse`
 
-Primero creo que vale la pena entender el API público. `Future` representa un valor futuro (que puede ser exitoso o fallido con una excepción) y tiene combinadores funcionales como `map` o `flatMap` que permiten crear otros futuros. `Promise` es un objeto que puede ser completado con un valor o fallido con una excepción. La diferencia entre ambos es que `Future` es como el lado de lectura y `Promise` es el lado de escritura, dónde se puede asignar el valor. `Future` es el sitio dónde agregamos funciones que se deberían ejecutar cuando el valor de la promesa haya sido llenado. Además un objeto de tipo `Promise[T]` tiene una referencia a un valor de tipo `Future[T]`, es decir a su lado de escritura. Esto resulta importante a la hora de ver como están implementados ciertos métodos. Creo que si al leer el código uno tiene en cuenta esta relación se puede entender buena parte. Además los comentarios al inicio de cada definición resultan útiles para entender.
+Primero creo que vale la pena entender el API público. `Future` representa un valor futuro (que puede ser exitoso o fallido con una excepción) y tiene combinadores funcionales como `map` o `flatMap` que permiten crear otros futuros. `Promise` es un objeto que puede ser completado con un valor o fallido con una excepción. La diferencia entre ambos es que `Future` es como el lado de lectura y `Promise` es el lado de escritura, dónde se puede asignar el valor. `Future` es el sitio dónde agregamos funciones que se deberían ejecutar cuando el valor de la promesa haya sido llenado. Además un objeto de tipo `Promise[T]` tiene una referencia a un valor de tipo `Future[T]`, es decir a su lado de lectura. Esto resulta importante a la hora de ver como están implementados ciertos métodos. Creo que si al leer el código uno tiene en cuenta esta relación se puede entender buena parte. Además los comentarios al inicio de cada definición resultan útiles.
 
 ## Un camino aproximado para entenderlo
 
@@ -70,7 +70,7 @@ El archivo de implementación define un tipo, también llamado `Promise` que ext
 def onComplete[U](func: Try[T] => U)(implicit executor: ExecutionContext): Unit
 ```
 
-Sin ponernos a ver como está implementado todavía lo que `onComplete` hace es agregar una función al futuro para que se ejecute una vez el futuro/promesa se resuelva. Además ambos métodos (`transform` y `transformWith`) definen un valor de tipo `DefaultPromise`, que es el que implementa la mayoría de cosas. Ambos métodos lo que hacen es algo como lo siguiente: definir una nueva promesa (el valor de escritura), después al futuro/promesa actual agregarle un callback para que cuando se complete utilizar ese valor de cierta manera para escribir la promesa con el valor, y finalmente devolver el lado de escritura de la promesa, es decir el futuro. La promesa se escribe con el método `tryComplete`, o con alguno de sus derivados. Ambos métodos siguen un esquema como el siguiente:
+Sin ponernos a ver como está implementado todavía lo que `onComplete` hace es agregar una función al futuro para que se ejecute una vez el futuro/promesa se resuelva. Además ambos métodos (`transform` y `transformWith`) definen un valor de tipo `DefaultPromise`, que es el que implementa la mayoría de cosas. Ambos métodos lo que hacen es algo como lo siguiente: definir una nueva promesa (el valor de escritura), después al futuro/promesa actual agregarle un callback para que cuando se complete utilizar ese valor de cierta manera para escribir la promesa con el valor, y finalmente devolver el lado de lectura de la promesa, es decir el futuro. La promesa se escribe con el método `tryComplete`, o con alguno de sus derivados. Ambos métodos siguen un esquema como el siguiente:
 
 ```scala
 val p = new DefaultPromise[S]()  // Definir lado de escritura
@@ -117,7 +117,7 @@ p.future // retornar lado de lectura
 **/
 ```
 
-Los puntos 1 y 2 deberían ser familiares. Pero el 3ro es una optimización hacen para prevenir _memory leaks_, ese es un detalle de la implementación que no he entendido bien, pero igual se puede entender lo demás sin eso.
+Los puntos 1 y 2 deberían ser familiares. Pero el 3ro es una optimización que hacen para prevenir _memory leaks_, ese es un detalle de la implementación que no he entendido bien, pero igual se puede comprender lo demás sin eso.
 
 Los métodos más importantes de `DefaultPromise` que deben entender son:
 
