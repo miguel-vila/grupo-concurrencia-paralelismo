@@ -84,6 +84,23 @@ onComplete { result: T =>
 p.future // retornar lado de lectura
 ```
 
+Una versión alterna de `transformWith` que tal vez sea más fácil de entender es la siguiente:
+
+```scala
+def transformWith[S](f: Try[T] => Future[S])(implicit executor: ExecutionContext): Future[S] = {
+    val p = new DefaultPromise[S]()
+    onComplete { result1 =>
+      try {
+        f(result1).onComplete { result2 => p.tryComplete(result2) }
+      } catch { case NonFatal(t) => p failure t }
+    }
+    p.future
+  }
+```
+
+En [el código de verdad](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L34-L44) tienen en cuenta otros dos casos pero creemos que son optimizaciones. Aquí lo importante es darse cuenta de que es "simplemente" un _callback_ dentro de otro _callback_: una llamada a `onComplete` dentro de otra llamada a `onComplete`. La promesa mantiene una referencia al resultado del _callback_ interno.
+
+
 ### [`DefaultPromise`](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L183) (mayoría de la implementación)
 
 `DefaultPromise` hereda de `AtomicReference` e implementa `Promise` (el que se encuentra en el mismo archivo, es decir la implementación parcial). [`AtomicReference`](https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/atomic/AtomicReference.html) es una clase del API de concurrencia de Java y sirve para mantener una referencia mutable que se puede actualizar atómicamente, es decir se puede compartir entre distintos _threads_ sin riesgo de "corromper" el valor. Los métodos que deberían entender son `get` y `compareAndSet`. Los [comentarios](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L105-L127) de `DefaultPromise` creo que explican gran parte de la cosa:
@@ -185,7 +202,7 @@ def sequence[T](futures: List[Future[T]]): Future[List[T]] = {
 }
 ```
 
-La versión del código fuente es mucho más complicada y utiliza el _typeclass_ `CanBuildFrom` para poder soportar multiples tipos de estructuras de datos. Creo que ese _typeclass_ lo explican en la parte 3 de [este](https://adriaanm.github.io/files/higher.pdf) artículo pero bajo el nombre de `Buildable`.
+La versión del código fuente es mucho más complicada y utiliza el _typeclass_ `CanBuildFrom` para poder soportar multiples tipos de estructuras de datos. Creo que ese _typeclass_ lo explican en la parte 3 de [este](https://adriaanm.github.io/files/higher.pdf) artículo pero con el nombre de `Buildable`.
 
 `Future.traverse` es bastante similar, la ventaja es que sirve para emitir futuros al mismo tiempo que se recorre una lista. Una forma de implementar `traverse` reusando `sequence`
 
@@ -205,5 +222,5 @@ Esto creo que es la mayoría de lo que hay entender. Faltan varias cosas pero du
 
 * [La optimización de enlazar promesas](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L128).
 * [Esto](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L74-L85)
-* [No vimos esto](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L800-L825)
+* [También esto](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L800-L825)
 * [¿Que es eso de `ExecutionContext#prepare`? ](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/ExecutionContext.scala#L74-L91), [`ThreadLocal`](https://docs.oracle.com/javase/7/docs/api/java/lang/ThreadLocal.html) y [demás](https://groups.google.com/forum/#!topic/scala-sips/fh2kSQI5Q_M)
