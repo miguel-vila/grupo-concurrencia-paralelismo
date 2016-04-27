@@ -79,7 +79,7 @@ onComplete { result: T =>
    * a partir de algo de tipo T transformarlo en algo de tipo S
    * y escribir ese valor en la promesa usando alguno de complete
    * , failure o completeWith
-   */  
+   */
 }
 p.future // retornar lado de lectura
 ```
@@ -137,4 +137,73 @@ Este `trait` sirve para describir una una promesa que ha sido inmediatamente com
 
 ---
 
+Devolviéndonos a las funciones de "alto nivel" `Future.sequence` y `Future.traverse` usan `map`, `flatMap` y `Future.successful` en su implementación (aprovechan el mecanismo de _for-comprehensions_):
+
+### [Future.sequence](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L611-L623)
+
+Una versión simplificada de `sequence` es esta:
+
+```scala
+def sequence[T](futures: List[Future[T]]): Future[List[T]] = {
+  futures match {
+    case Nil       => Future.successful( List.empty[T] )
+    case fhead::fs =>
+      val frest = sequence( sf )
+      for {
+        head <- fhead
+        rest <- frest
+      } yield head :: rest
+  }
+}
+```
+
+Que también puede escribirse con un `foldRight`:
+
+```scala
+def sequence[T](futures: List[Future[T]]): Future[List[T]] = {
+  futures.foldRight(Future.successful(List.empty[T])) { (fh,ftl) =>
+    for {
+      h  <- fh
+      tl <- ftl
+    } yield h :: tl
+  }
+}
+```
+
+En ejecución esto se puede ver algo como esto:
+
+```scala
+def sequence[T](futures: List[Future[T]]): Future[List[T]] = {
+  for {
+    t0  <- futures(0)
+    t1  <- futures(1)
+    .
+    .
+    .
+    tn  <- futures(n)
+  } yield t0 :: t1 :: ... :: tn :: List.empty[T]
+}
+```
+
+La versión del código fuente es mucho más complicada y utiliza el _typeclass_ `CanBuildFrom` para poder soportar multiples tipos de estructuras de datos. Creo que ese _typeclass_ lo explican en la parte 3 de [este](https://adriaanm.github.io/files/higher.pdf) artículo pero bajo el nombre de `Buildable`.
+
+`Future.traverse` es bastante similar, la ventaja es que sirve para emitir futuros al mismo tiempo que se recorre una lista. Una forma de implementar `traverse` reusando `sequence`
+
+---
+
 Esto creo que es la mayoría de lo que hay entender. Faltan varias cosas pero durante la sesión podemos adentrarnos en los detalles de cada método y en las preguntas específicas de concurrencia.
+
+# Algunas conclusiones
+
+* El principio mas importante es la relación entre promesa y futuro. La promesa representa una variable que va a ser llenada exitosa o fallidamente y el futuro es el lugar desde dónde se pueden adjuntar funciones para cuando esa variable sea llenada, es decir el lado de lectura. (Esta relación es un poco similar a la que hay entre `Observable` y `Observer` en Reactive extensions)
+* `Future` "solamente" abstrae el proceso de ejecutar _callbacks_ en un `ExecutionContext` que eventualmente llenan el valor de una promesa.
+* Por lo anterior no tiene tanto sentido decir que un futuro es asíncrono: depende del thread que llene el valor de la promesa.
+* Un `Future` o una `Promise` se pueden compartir entre distintos _threads_. La implementación (mediante el método `compareAndSet` de `AtomicReference`) garantiza que cosas como llamar `onComplete` al mismo tiempo que se completa la promesa no produzca efectos no deseados como la pérdida de un callback.
+* La implementación está llena de "reglas rotas": por ejemplo _casts_ o `null`s. El código está estructurado para que esto no importe.
+
+# Cosas pendientes por entender
+
+* [La optimización de enlazar promesas](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L128).
+* [Esto](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/impl/Promise.scala#L74-L85)
+* [No vimos esto](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/Future.scala#L800-L825)
+* [¿Que es eso de `ExecutionContext#prepare`? ](https://github.com/scala/scala/blob/804a4cc1ff9fa159c576be7c685dbb81220c11da/src/library/scala/concurrent/ExecutionContext.scala#L74-L91), [`ThreadLocal`](https://docs.oracle.com/javase/7/docs/api/java/lang/ThreadLocal.html) y [demás](https://groups.google.com/forum/#!topic/scala-sips/fh2kSQI5Q_M)
