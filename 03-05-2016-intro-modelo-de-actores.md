@@ -48,8 +48,8 @@ No problem with concurrent withadrals:
 val checking: ActorRef = ...
 
 // at the same time:
-val response1: Future[Boolean] = checking ? Withadral(60)
-val response2: Future[Boolean] = checking ? Withadral(50)
+val response1: Future[Boolean] = ( checking ? Withadral(60) ).mapTo[Boolean]
+val response2: Future[Boolean] = ( checking ? Withadral(50) ).mapTo[Boolean]
 ```
 
 ### Properties of communications
@@ -73,16 +73,15 @@ val response2: Future[Boolean] = checking ? Withadral(50)
 
 Supervision: the running state of an actor is monitored and managed.
 
-Properties:
+* Properties:
+  * Constantly monitors running state of actor
+  * Can perform actions based on the state of the actor: e.g. start over
 
-* Constantly monitors running state of actor
-* Can perform actions based on the state of the actor: e.g. start over
+* Supervision Trees: hierarchies
 
-Supervision Trees: hierarchies
-
-Transparent Lifecycle management:
-* Addresses don't change during restarts
-* Mailboxes are persisted outside the actor instances: Address encapsulates both the mailbox and the actor
+* Transparent Lifecycle management:
+  * Addresses don't change during restarts
+  * Mailboxes are persisted outside the actor instances: Address encapsulates both the mailbox and the actor
 
 ## Use cases
 
@@ -91,18 +90,13 @@ Transparent Lifecycle management:
 * Multi-user concurrency: playing with actors liveness -> e.g. have an actor for each user and each event by the user is a message to the actor
 * Systems with high uptime requirements (Ericsson's Erlang )
 * Applications with shared state
-
 * Batch Job Processing
-
-Breaking up the work:
-
-* First layer of HTTP actors
-* Work queue
-* Job Processors: has child actors and tracks jobs
-
-
-* Allows to controll level of concurrency.
-* Client pushes work, workers pull from queue.
+* Breaking up the work:
+  * First layer of HTTP actors
+  * Work queue
+  * Job Processors: has child actors and tracks jobs
+  * Allows to controll level of concurrency.
+  * Client pushes work, workers pull from queue.
 
 ## Demo
 
@@ -119,10 +113,25 @@ Pool of workers. Job: identify prime numbers in a range. (Why workers are useful
 * Too many actors: hard for tracing, understanding or testing
 * Debugging
 
-## _Dispatchers_: como se unen los actores y los _threads_
-
-### //@TODO
-
 ## ¿Como funciona en Pony? (Para contrastar)
 
-### //@TODO
+[Pony-lang](http://www.ponylang.org/) es un lenguaje que soporta actores y tiene un acercamiento distinto al de scala. Específicamente permite definir los manejos de los mensajes mediante _behaviours_. En el siguiente actor el _behaviour_ `eat` es uno de los mensajes que el actor puede recibir y se define de forma similar a una función:
+
+```pony
+actor Aardvark
+  let name: String
+  var _hunger_level: U64 = 0
+
+  new create(name': String) =>
+    name = name'
+
+  be eat(amount: U64) =>
+    _hunger_level = _hunger_level - amount.min(_hunger_level)
+```
+
+lo anterior permite que el _typechecker_ verifique que los mensajes que se le envíen a un actor sean los que de verdad es capaz de manejar. A diferencia en Akka este tipo de errores no son atrapados sino hasta cuando se está ejecutando el programa. Sin embargo Akka agregó algo de actores tipados que no revisamos.
+
+## Pendientes
+
+* Ver _dispatchers_ y de qué sirven
+* ¿Cómo están implementados?
