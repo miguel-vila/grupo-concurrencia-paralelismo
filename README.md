@@ -25,6 +25,8 @@
 
 ## [Slack](https://concurr-paral-s4n.slack.com/)
 
+## [Términos comúnes](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/terminos-comunes.md#términos-comúnes)
+
 ## Posibles Temas
 
 * API de `ExecutorService`s de la JVM.:
