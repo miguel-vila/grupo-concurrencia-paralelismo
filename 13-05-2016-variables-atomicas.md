@@ -135,7 +135,7 @@ do {
     newValue = currentValue / 2 ;
   } else {
     newValue = 3 * currentValue + 1 ;
-  }  
+  }
 } while(!atom.compareAndSet(currentValue, newValue))
 ```
 
@@ -154,17 +154,16 @@ atom.updateAndGet( currentValue -> {
 });
 ```
 
-### En Futuros y Promesas
+### En la implementación de Futuros y Promesas y la librería estándar
 
 ¿Qué pasa si se llama al mismo tiempo dos funciones que agregan un _callback_ sobre un Futuro? Por ejemplo en el siguiente código se le están agregando dos _callbacks_ al futuro `future1`, potencialmente al mismo tiempo:
 
 ```scala
 val future1: Future[Int] = ...
 val future2: Future[Int] = ...
-val future3: Future[Int] = ...
 
-val future4 = future2.flatMap { x => future1.map { y => x + y } }
-val future5 = future3.flatMap { z => future1.map { y => z * y } }
+val future3 = future2.flatMap { x => future1.map { y => x + y } }
+val future4 = future2.flatMap { x => future1.map { y => x * y } }
 ```
 
 ¿Cómo maneja esto la implementación?
