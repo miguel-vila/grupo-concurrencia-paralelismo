@@ -17,9 +17,9 @@
 |19/04/2016 | [Jessica Kerr's "Concurrency options on the JVM"](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/19-04-2016-concurrency-options-on-the-jvm.md) |
 |26/04/2016 | [¿Cómo funcionan los futuros de la librería estándar de Scala?](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/26-04-2016-scala-std-futures.md#cómo-funcionan-los-futuros-de-la-librería-estándar-de-scala)
 |03/05/2016 | [John Murray's "Introduction to the Actor Model for Concurrent Computation"](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/03-05-2016-intro-modelo-de-actores.md)
-|13/05/2016 | [Variables atómicas](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/13-05-2016-variables-atomicas.md#variables-atómicas) * |
-|17/05/2016 | [_Dispatchers_ en Akka](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/17-05-2016-dispatchers-en-akka.md#dispatchers-en-akka) * |
-|24/05/2016 | [¿Cómo funciona un _pool_ de _threads_?](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/24-05-2016-como-funciona-un-pool-de-threads.md#cómo-funciona-un-pool-de-threads) * |
+|17/05/2016 | [Variables atómicas](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/17-05-2016-variables-atomicas.md#variables-atómicas) |
+|24/05/2016 | [_Dispatchers_ en Akka](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/24-05-2016-dispatchers-en-akka.md#dispatchers-en-akka) * |
+|31/05/2016 | [¿Cómo funciona un _pool_ de _threads_?](https://github.com/miguel-vila/grupo-concurrencia-paralelismo/blob/master/31-05-2016-como-funciona-un-pool-de-threads.md#cómo-funciona-un-pool-de-threads) * |
 
 **\* = por concretar**
 
