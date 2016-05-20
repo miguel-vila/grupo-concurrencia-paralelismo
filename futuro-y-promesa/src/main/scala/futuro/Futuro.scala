@@ -13,65 +13,67 @@ trait Futuro[T] {
   def onComplete(f: Try[T] => Unit)(implicit executionContext: ExecutionContext): Unit
 
   def map[S](f: T => S)(implicit executionContext: ExecutionContext): Futuro[S] = {
-    val promise = Promesa[S]()
+    val promesa = Promesa[S]()
     onComplete {
       case Success(t) =>
         val value = try { Success( f(t) ) } catch { case NonFatal(error) => Failure(error) }
-        promise.complete( value )
+        promesa.complete( value )
       case Failure(error) =>
-        promise.complete( Failure(error) )
+        promesa.complete( Failure(error) )
     }
-    promise.futuro
+    promesa.futuro
   }
 
   def recover[S>:T](handle: PartialFunction[Throwable, S])(implicit executionContext: ExecutionContext): Futuro[S] = {
-    val promise = Promesa[S]()
+    val promesa = Promesa[S]()
     onComplete {
       case Success(t) =>
-        promise.complete(Success(t))
+        promesa.complete(Success(t))
       case Failure(error) =>
         if(handle.isDefinedAt(error)) {
           val value = try { Success( handle.apply(error) ) } catch { case NonFatal(error) => Failure(error) }
-          promise.complete(value)
+          promesa.complete(value)
         } else {
-          promise.complete( Failure(error) )
+          promesa.complete( Failure(error) )
         }
     }
-    promise.futuro
+    promesa.futuro
   }
 
   def flatMap[S](f: T => Futuro[S])(implicit executionContext: ExecutionContext): Futuro[S] = {
-    val promise = Promesa[S]()
+    val promesa = Promesa[S]()
     onComplete {
       case Success(t) =>
         try {
-          f(t).onComplete { result2 => promise.complete( result2 ) }
+          f(t).onComplete { result2 => promesa.complete( result2 ) }
         } catch {
-          case NonFatal(error) => Failure(error)
+          case NonFatal(error) => 
+          promesa.complete( Failure(error) )
         }
       case Failure(error) =>
-        promise.complete( Failure(error) )
+        promesa.complete( Failure(error) )
     }
-    promise.futuro
+    promesa.futuro
   }
 
   def recoverWith[S>:T](handle: PartialFunction[Throwable, Futuro[S]])(implicit executionContext: ExecutionContext): Futuro[S] = {
-    val promise = Promesa[S]()
+    val promesa = Promesa[S]()
     onComplete {
       case Success(t) =>
-        promise.complete(Success(t))
+        promesa.complete(Success(t))
       case Failure(error) =>
         if(handle.isDefinedAt(error)) {
           try {
-            handle.apply(error).onComplete { result2 =>  promise.complete(result2) }
+            handle.apply(error).onComplete { result2 =>  promesa.complete(result2) }
           } catch {
-            case NonFatal(error) => promise.complete( Failure(error) )
+            case NonFatal(error) => 
+            promesa.complete( Failure(error) )
           }
         } else {
-          promise.complete( Failure(error) )
+          promesa.complete( Failure(error) )
         }
     }
-    promise.futuro
+    promesa.futuro
   }
 
   def waitForResult(timeout: FiniteDuration)(implicit executionContext: ExecutionContext): Try[T]

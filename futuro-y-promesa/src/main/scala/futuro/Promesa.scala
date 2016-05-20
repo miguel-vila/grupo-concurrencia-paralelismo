@@ -16,7 +16,7 @@ trait Promesa[T] {
 
 object Promesa {
 
-  def apply[T](): Promesa[T] = new PromiseImpl[T](state = new AtomicReference(Pending()))
+  def apply[T](): Promesa[T] = new PromesaImpl[T]()
 
   private def fullfilledPromise[T](value: Try[T]): Promesa[T] = new Promesa[T] {
 

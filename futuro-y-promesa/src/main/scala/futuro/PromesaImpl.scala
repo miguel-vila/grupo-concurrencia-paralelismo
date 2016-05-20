@@ -8,21 +8,22 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
-class PromiseImpl[T](state: AtomicReference[PromiseState[T]]) extends Promesa[T] with Futuro[T] {
+class PromesaImpl[T] extends AtomicReference[EstadoPromesa[T]](Pendiente()) with Promesa[T] with Futuro[T] {
 
   override def futuro: Futuro[T] = this
 
   def onComplete(f: Try[T] => Unit)(implicit executionContext: ExecutionContext): Unit ={
-    val callback = new Callback[T](f,executionContext)
+    val callback = new Callback(f,executionContext)
     onComplete(callback)
   }
 
-  def onComplete(callback: Callback[T]): Unit = {
-    state.get() match {
-      case Resolved(value)           =>
+  @tailrec
+  private def onComplete(callback: Callback[T]): Unit = {
+    get() match {
+      case Resuelta(value)           =>
         callback.executeWith(value)
-      case currentState @ Pending(currentCallbacks) =>
-        if(state.compareAndSet(currentState, Pending( callback :: currentCallbacks)))
+      case currentState @ Pendiente(currentCallbacks) =>
+        if(compareAndSet(currentState, Pendiente( callback :: currentCallbacks)))
           ()
         else
           onComplete(callback)
@@ -39,12 +40,12 @@ class PromiseImpl[T](state: AtomicReference[PromiseState[T]]) extends Promesa[T]
   }
 
   @tailrec
-  private final def getCallbacksAndSetValue(value: Try[T]): Option[List[Callback[T]]] = {
-    val currentState = state.get()
-    currentState match {
-      case Resolved(_) => None
-      case Pending(currentCallbacks) =>
-        if (state.compareAndSet(currentState, Resolved(value))) {
+  private def getCallbacksAndSetValue(value: Try[T]): Option[List[Callback[T]]] = {
+    get() match {
+      case Resuelta(_) =>
+        None
+      case currentState @ Pendiente(currentCallbacks) =>
+        if (compareAndSet(currentState, Resuelta(value))) {
           Some(currentCallbacks)
         } else {
           getCallbacksAndSetValue(value)
@@ -53,8 +54,8 @@ class PromiseImpl[T](state: AtomicReference[PromiseState[T]]) extends Promesa[T]
   }
 
   def waitForResult(timeout: FiniteDuration)(implicit executionContext: ExecutionContext): Try[T] = {
-    state.get() match {
-      case Resolved(value) => value
+    get() match {
+      case Resuelta(value) => value
       case _               =>
         var resultRef: Option[Try[T]] = None
         val latch = new CountDownLatch(1)
