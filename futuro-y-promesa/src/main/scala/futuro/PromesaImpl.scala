@@ -20,7 +20,7 @@ class PromesaImpl[T] extends AtomicReference[EstadoPromesa[T]](Pendiente()) with
   @tailrec
   private def onComplete(callback: Callback[T]): Unit = {
     get() match {
-      case Resuelta(value)           =>
+      case Completada(value)                          =>
         callback.executeWith(value)
       case currentState @ Pendiente(currentCallbacks) =>
         if(compareAndSet(currentState, Pendiente( callback :: currentCallbacks)))
@@ -42,10 +42,10 @@ class PromesaImpl[T] extends AtomicReference[EstadoPromesa[T]](Pendiente()) with
   @tailrec
   private def getCallbacksAndSetValue(value: Try[T]): Option[List[Callback[T]]] = {
     get() match {
-      case Resuelta(_) =>
+      case Completada(_) =>
         None
       case currentState @ Pendiente(currentCallbacks) =>
-        if (compareAndSet(currentState, Resuelta(value))) {
+        if (compareAndSet(currentState, Completada(value))) {
           Some(currentCallbacks)
         } else {
           getCallbacksAndSetValue(value)
@@ -55,8 +55,8 @@ class PromesaImpl[T] extends AtomicReference[EstadoPromesa[T]](Pendiente()) with
 
   def waitForResult(timeout: FiniteDuration)(implicit executionContext: ExecutionContext): Try[T] = {
     get() match {
-      case Resuelta(value) => value
-      case _               =>
+      case Completada(value) => value
+      case _                 =>
         var resultRef: Option[Try[T]] = None
         val latch = new CountDownLatch(1)
         onComplete { result =>
