@@ -5,9 +5,9 @@ package thread.pools.growing_thread_pools;
  */
 public class GrowingThreadPoolState {
 
-    private final int total;
+    public final int total;
 
-    private final int busy;
+    public final int busy;
 
     private GrowingThreadPoolState(int total, int busy) {
         this.total = total;

@@ -1,41 +1,52 @@
 package thread.pools.growing_thread_pools;
 
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by miguel on 7/06/16.
  */
-public class SynchronousQueueGrowingThreadPool {
+public class GrowingThreadPool {
 
     private final AtomicReference<GrowingThreadPoolState> state;
 
-    private final SynchronousQueue<Worker> threads;
+    private final LinkedList<Worker> threads;
 
-    private final SynchronousQueue<Runnable> queue;
+    private final LinkedList<Runnable> queue;
 
-    public SynchronousQueueGrowingThreadPool(int initialThreads) throws InterruptedException {
+    public GrowingThreadPool(int initialThreads) throws InterruptedException {
         state = new AtomicReference(new GrowingThreadPoolState());
-        queue = new SynchronousQueue();
-        threads = new SynchronousQueue();
+        queue = new LinkedList();
+        threads = new LinkedList();
         for (int i = 0; i < initialThreads; i++) {
-            pushNewWorker(null);
+            System.out.println("pushing");
+            pushNewWorker(null/*no initial task*/);
         }
     }
 
     public void execute(Runnable task) throws InterruptedException {
         GrowingThreadPoolState st = state.get();
-        if(st.allAreBusy()) {
+        boolean allBusy = st.allAreBusy();
+        System.out.println("allBusy = "+ allBusy);
+        System.out.println("total = "+ st.total);
+        if(allBusy) {
             pushNewWorker(task);
+        } else {
+            queue.add(task);
+            queue.notify();
         }
-        queue.put(task);
     }
 
     private void pushNewWorker(Runnable initialTask) throws InterruptedException {
         final Worker worker = new Worker(initialTask);
+        threads.add(worker);
+        System.out.println("increasedTotalCount");
         increaseTotalCount();
-        threads.put(worker);
+        System.out.println("starting");
         worker.start();
+        System.out.println("started");
     }
 
     private void increaseTotalCount() {
@@ -48,6 +59,26 @@ public class SynchronousQueueGrowingThreadPool {
 
     private void decreaseBusyCount() {
         state.updateAndGet(GrowingThreadPoolState::decreaseBusyCount);
+    }
+
+    public int getTotalThreads() {
+        return state.get().total;
+    }
+
+    private Runnable getTask() {
+        final Runnable r;
+        while(true) {
+            synchronized (queue) {
+                while(queue.isEmpty()) {
+                    try {
+                        queue.wait();
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+                r = queue.removeFirst();
+            }
+            return r;
+        }
     }
 
     private class Worker extends Thread {
@@ -74,7 +105,7 @@ public class SynchronousQueueGrowingThreadPool {
                 runTask(initialTask);
             }
             while(true) {
-                Runnable runnable = queue.poll();
+                Runnable runnable = getTask();
                 runTask(runnable);
             }
 
