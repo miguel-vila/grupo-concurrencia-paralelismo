@@ -34,14 +34,18 @@ public class GrowingThreadPool {
         if(allBusy) {
             pushNewWorker(task);
         } else {
-            queue.add(task);
-            queue.notify();
+            synchronized (queue) {
+                queue.add(task);
+                queue.notify();
+            }
         }
     }
 
     private void pushNewWorker(Runnable initialTask) throws InterruptedException {
         final Worker worker = new Worker(initialTask);
-        threads.add(worker);
+        synchronized(threads) {
+            threads.add(worker);
+        }
         System.out.println("increasedTotalCount");
         increaseTotalCount();
         System.out.println("starting");

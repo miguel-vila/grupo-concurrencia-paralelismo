@@ -27,7 +27,7 @@ public class GrowingThreadPoolTest {
         pool.execute(task1);
 
         pool.execute(task2);
-        Thread.sleep(1300);
+        //Thread.sleep(1300);
         assertEquals(2, pool.getTotalThreads());
     }
 
