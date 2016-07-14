@@ -95,6 +95,7 @@ public class GrowingThreadPool {
 
         public void runTask(Runnable task) {
             increaseBusyCount();
+            System.out.println("RUNNING TASK");
             try {
                 task.run();
             } catch (RuntimeException error) {
